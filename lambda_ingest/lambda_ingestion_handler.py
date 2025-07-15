@@ -1,8 +1,9 @@
 import json
-import os
 import requests
 import boto3
 import pandas as pd
+from datetime import datetime
+from datetime import timezone as timz
 
 # Vaccination indicators (WHO API codes)
 VACCINE_INDICATORS = {
@@ -35,7 +36,8 @@ def download_and_upload(category, name, code):
         if r.status_code == 200:
             data = r.json().get("value", [])
             df = pd.DataFrame(data)
-            key = f"raw/{category}/{name}.csv"
+            timestamp = datetime.now(tz=timz.utc).strftime("%Y%m%d")
+            key = f"raw/{category}/{name}_{timestamp}.csv"
             csv_buffer = df.to_csv(index=False)
             s3.put_object(Body=csv_buffer, Bucket=S3_BUCKET, Key=key)
             print(f"✅ Uploaded to S3 → {key}")
@@ -58,3 +60,6 @@ def lambda_handler(event=None, context=None):
         "statusCode": 200,
         "body": json.dumps("✅ Data ingestion complete.")
     }
+
+if __name__ == "__main__":
+    lambda_handler()
