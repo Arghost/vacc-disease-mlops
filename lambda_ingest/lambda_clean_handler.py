@@ -3,6 +3,7 @@ import pandas as pd
 import io
 import os
 from datetime import datetime
+import json
 
 # S3 config
 bucket = "vacc-disease-mlops-pipeline-argh"
@@ -63,7 +64,16 @@ def process_category(category):
     s3.put_object(Bucket=bucket, Key=agg_key, Body=agg_buffer.getvalue())
     print(f"✅ Master dataset updated → {agg_key}")
 
-if __name__ == "__main__":
+def lambda_handler(event=None, context=None):
+    print("🚀 Starting cleaning process...")
     process_category("vaccination")
     process_category("disease")
+    print("✅ Cleaning done.")
+    return {
+        "statusCode": 200,
+        "body": json.dumps("✅ Cleaning complete.")
+    }
+
+if __name__ == "__main__":
+    lambda_handler()
     print("✅ Data processing complete.")
