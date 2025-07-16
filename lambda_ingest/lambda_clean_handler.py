@@ -32,12 +32,15 @@ def process_category(category):
         return
 
     df_all = pd.concat(dfs, ignore_index=True)
-    df_cleaned = df_all[["IndicatorCode", "Dim1", "SpatialDim", "TimeDim", "Value"]].dropna()
+    #save local file for testing
+    df_cleaned = df_all[["IndicatorCode", "SpatialDim", "TimeDim", "Value"]].dropna()
     df_cleaned = df_cleaned.rename(columns={
-        "Dim1": "Subgroup",
-        "SpatialDim": "Country",
-        "TimeDim": "Year",
-        "Value": "Value"
+        "IndicatorCode": "indicator",
+        "Dim1": "subgroup",
+        "SpatialDim": "country",
+        "ParentLocation": "region",   # region can be null — that’s okay
+        "TimeDim": "year",
+        "Value": "value"
     })
 
     # Create timestamp
