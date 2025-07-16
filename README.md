@@ -1,0 +1,1 @@
+Project to read and correlate vaccines vs rare diseases infections to understand if vaccinations are effective. Provides also forecasting to predict possible outbrakes using WHO APIs, AWS services with MLOps.
