@@ -3,6 +3,7 @@ import pandas as pd
 import io
 import os
 from datetime import datetime
+from datetime import timezone as timz
 
 # S3 config
 bucket = "vacc-disease-mlops-pipeline-argh"
@@ -43,7 +44,7 @@ def process_category(category):
     })
 
     # Create timestamp
-    timestamp = datetime.utcnow().strftime("%Y%m")
+    timestamp = tmstamp = datetime.now(tz=timz.utc).strftime("%Y%m")
 
     # 1️⃣ Upload versioned cleaned file
     clean_key = f"processed/{category}/processed_{category}_{timestamp}.csv"
