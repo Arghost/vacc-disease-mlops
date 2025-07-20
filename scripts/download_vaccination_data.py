@@ -4,10 +4,10 @@ import pandas as pd
 
 #WHO API Indicators
 VACCINE_INDICATORS = {
-    "MMR" : "WHS8_110",  
-    "DTP3" : "WHS4_100",
-    "Pol3" : "WHS4_544",
-    "HepB3" : "WHS4_117"
+    "diphtheria": "WHS4_100",
+    "measles": "WHS8_110",
+    "polio": "WHS4_544",
+    "hepatitis_b": "WHS4_117"
 }
 
 #API Base URL

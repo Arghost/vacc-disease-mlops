@@ -7,10 +7,10 @@ from datetime import timezone as timz
 
 # Vaccination indicators (WHO API codes)
 VACCINE_INDICATORS = {
-    "DTP3": "WHS4_100",
-    "MMR": "WHS8_110",
-    "Pol3": "WHS4_544",
-    "HepB3": "WHS4_117"
+    "diphtheria": "WHS4_100",
+    "measles": "WHS8_110",
+    "polio": "WHS4_544",
+    "hepatitis_b": "WHS4_117"
 }
 
 # Disease indicators (reported cases or incidence)

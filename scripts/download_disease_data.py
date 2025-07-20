@@ -32,5 +32,5 @@ def download_disease_data(disease, code):
 if __name__ == "__main__":
     for disease, code in DISEASE_INDICATORS.items():
         download_disease_data(disease, code)
-
+#TODO: Save file locally within data/...
 print("📥 Download completed")

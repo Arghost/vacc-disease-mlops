@@ -3,6 +3,7 @@ import pandas as pd
 import io
 import os
 from datetime import datetime
+from datetime import timezone as timz
 import json
 
 # S3 config
@@ -33,18 +34,20 @@ def process_category(category):
 
     df_all = pd.concat(dfs, ignore_index=True)
     #save local file for testing
-    df_cleaned = df_all[["IndicatorCode", "SpatialDim", "TimeDim", "Value"]].dropna()
-    df_cleaned = df_cleaned.rename(columns={
+    df_cleaned = df_all.rename(columns={
         "IndicatorCode": "indicator",
-        "Dim1": "subgroup",
         "SpatialDim": "country",
         "ParentLocation": "region",   # region can be null — that’s okay
         "TimeDim": "year",
-        "Value": "value"
+        "Value": "value",
+        "indicator_code": "disease_code"
     })
+    df_cleaned = df_cleaned[["indicator", "country", "region", "year", "value", "disease_code"]]
+    #Remove rows with null values
+    df_cleaned = df_cleaned.dropna(subset=["indicator", "year", "country", "value", "disease_code"])
 
     # Create timestamp
-    timestamp = datetime.utcnow().strftime("%Y%m")
+    timestamp = datetime.now(tz=timz.utc).strftime("%Y%m%d")
 
     # 1️⃣ Upload versioned cleaned file
     clean_key = f"processed/{category}/processed_{category}_{timestamp}.csv"

@@ -15,7 +15,7 @@ def load_vacc_disease_data():
     vacc_df = pd.DataFrame()
     disease_df = pd.DataFrame()
     # Create timestamp
-    tmstamp = datetime.now(tz=timz.utc).strftime("%Y%m")
+    tmstamp = datetime.now(tz=timz.utc).strftime("%Y%m%d")
     try:
         vacc_key = f"processed/vaccination/processed_vaccination_{tmstamp}.csv"
         disease_key = f"processed/disease/processed_disease_{tmstamp}.csv"
@@ -32,9 +32,87 @@ def load_vacc_disease_data():
         return vacc_df, disease_df
     return vacc_df, disease_df
 
+def get_country_name(df):
+    print("Adding country names to the data...")
+    # Load country codes mapping
+    if df.empty:
+        print("❌ DataFrame is empty, cannot add country names.")
+        return df
+    
+    ctry_key = "country_codes/country_codes.csv"
+    #Loading countries from S3
+    count_obj = s3.get_object(Bucket=bucket, Key=ctry_key)
+    country_codes = pd.read_csv(io.BytesIO(count_obj["Body"].read()), low_memory=False, sep=",", on_bad_lines='skip')    
+    df = df.merge(country_codes, left_on="country", right_on="code_3", how="left", suffixes=("", "_x"))
+    df = df.drop(columns=["code_3"], errors="ignore")
+    df.rename(columns={"country_x": "country_name"}, inplace=True)
+
+    print("✅ Country names added.")
+    return df
+
 # Function to execute EDA on vaccination and disease data
 def execute_eda(vacc_df, disease_df):
-    print("✅ To be continued....")
+    print("Performing EDA on vaccination and disease data...")
+    # Example EDA operations
+    print("Vaccination Data Overview:")
+    print(vacc_df.describe())
+    print("\nDisease Data Overview:")
+    print(disease_df.describe())
+    
+    # Check for missing values
+    print("\nMissing Values in Vaccination Data:")
+    print(vacc_df.isnull().sum())
+    print("\nMissing Values in Disease Data:")
+    print(disease_df.isnull().sum())
+    
+    # Check data types
+    print("\nData Types in Vaccination Data:")
+    print(vacc_df.dtypes)
+    print("\nData Types in Disease Data:")
+    print(disease_df.dtypes)
+    
+    # Additional EDA can be added here
+    vacc_df['type'] = 'vaccination'
+    disease_df['type'] = 'disease'
+    combined_df = pd.concat([vacc_df, disease_df], ignore_index=True)
+    print("\nCombined Data Overview:")
+    print(combined_df.describe())
+
+    # Changing column types
+    combined_df["value"] = pd.to_numeric(combined_df["value"], errors="coerce").astype("float")
+    combined_df["year"] = pd.to_numeric(combined_df["year"], errors="coerce").astype("Int64")
+    combined_df = combined_df.astype({
+        "indicator": "string",
+        "country": "string",
+        "region": "string",
+        "disease_code": "string"
+    })
+    # Rename column for clarity.
+    combined_df = combined_df.rename(columns={"disease_code": "disease_name"})
+    combined_df = combined_df.dropna(subset=["value"])
+    combined_df = get_country_name(combined_df)
+    # Filter rows with specific country codes.
+    combined_df = combined_df[~combined_df["country"].isin([
+        "AFR",
+        "AMR",
+        "EMR",
+        "EUR",
+        "GLOBAL",
+        "MDA",
+        "SEAR",
+        "WB_HI",
+        "WB_LI",
+        "WB_LMI",
+        "WB_UMI",
+        "WPR",
+        "XKX"
+    ])]
+    # Assigning region based on country codes
+    combined_df.loc[combined_df["country"].isin(["HKG","MAC"]), "region"] = "South-East Asia"
+    print("\nTotal NaN values per column in combined_df:")
+    print(combined_df.isnull().sum())
+
+    
 
 # Function to perform EDA on vaccination and disease data
 def eda_analysis_data():
@@ -42,7 +120,7 @@ def eda_analysis_data():
     if vacc_df.empty or disease_df.empty:
         print("❌ No data available for EDA.")
         return
-    else:
+    else:        
         execute_eda(vacc_df, disease_df)
 
 if __name__ == "__main__":
