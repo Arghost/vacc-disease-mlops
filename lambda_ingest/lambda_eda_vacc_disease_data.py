@@ -129,11 +129,7 @@ def execute_data_improvement(vacc_df, disease_df):
 def det_clean_outliers(df_dvc):
     #declaring json to track changes
     log = {}
-    # Ensure directories exist
-    os.makedirs("processed", exist_ok=True)
-    os.makedirs("logs", exist_ok=True)
-    os.makedirs("plots", exist_ok=True)
-
+ 
     # Detect and remove outliers per disease_code
     cleaned_df = pd.DataFrame()
     
@@ -200,8 +196,12 @@ def eda_analysis_data():
         else: 
             print("❌ Data combined emtpy. Process finished with errors")
 
-#Starting function
-if __name__ == "__main__":
+#Lambda handler
+def lambda_handler():
     print("Starting EDA on vaccination and disease data...")
     eda_analysis_data()
-    print("EDA on vaccination and disease finished") 
+    print("EDA on vaccination and disease finished")
+    return {
+        "statusCode": 200,
+        "body": json.dumps("✅ Cleaning complete.")
+    }
