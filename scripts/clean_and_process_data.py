@@ -46,7 +46,7 @@ def process_category(category):
     df_cleaned = df_cleaned.dropna(subset=["indicator", "year", "country", "value", "disease_code"])
 
     # Create timestamp
-    timestamp = tmstamp = datetime.now(tz=timz.utc).strftime("%Y%m%d")
+    timestamp = datetime.now(tz=timz.utc).strftime("%Y%m%d")
 
     # 1️⃣ Upload versioned cleaned file
     clean_key = f"processed/{category}/processed_{category}_{timestamp}.csv"
