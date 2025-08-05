@@ -32,9 +32,8 @@ def download_s3_file():
 #Main method to group data and generate forecasting models.
 def generate_forecast_models(df):
     results = []
-    df_dis = df[df["type"] == "Disease"]
     print("Starting with forecasting process")
-    for (country, disease), group in df_dis.groupby(["country", "disease_name"]):
+    for (country, disease, dtype), group in df.groupby(["country", "disease_name", "type"]):
         ts = group.sort_values("year")[["year", "value"]].dropna()
         if len(ts) < 5:
             continue
@@ -91,6 +90,7 @@ def generate_forecast_models(df):
                     "country": country,
                     "disease": disease,
                     "year": int(year),
+                    "type": dtype,
                     "forecast": float(best_forecast[i]),
                     "model": best_model
                 })
